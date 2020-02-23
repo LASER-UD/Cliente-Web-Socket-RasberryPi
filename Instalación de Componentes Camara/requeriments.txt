@@ -1,0 +1,6 @@
+#Intalar Gestor de paquetes	
+	python3-pip
+#Intalar camara
+	opencv-python
+#HTTP/2
+	Twisted[tls,http2]
