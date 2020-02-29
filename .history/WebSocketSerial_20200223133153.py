@@ -21,35 +21,55 @@ class SerialD():
      cuenta=0
      def __init__(self):
           self.datos=None;
-          self.ser_acm0 = serial.Serial()
-          self.ser_acm0.baudrate = 115200
-          self.ser_acm0.port = '/dev/ttyACM0'
+          self.ser = serial.Serial()
+          self.ser.baudrate = 115200
+          self.ser.port = '/dev/ttyACM0'
           self.sensores=[0,0,0,0,0]
+          self.cambio=False;
+          self.cambio1=False
+          self.Rdatos=0
           
      def start(self):
             try:
-                self.ser_acm0.open()
+                self.ser.open()
             except:
-                self.ser_acm0.port='/dev/ttyUSB0'
-                self.ser_acm0.open()
+                self.ser.port='/dev/ttyUSB0'
+                self.ser.open()
             self.hilo=threading.Thread(target=self.update, args=())
             self.hilo.start()
           
      def end(self):
-          self.ser_acm0.close()
+          self.ser.close()
           
      def update(self):
-        while self.ser_acm0.isOpen():
-            self.ser_acm0.flush() #espera a  exista un dato
-            datos=self.ser_acm0.readline()
+        while self.ser.isOpen():
+            self.ser.flush() #espera a  exista un dato
+            datos=self.ser.readline()
+            #print(datos)
             if (datos.decode('cp1250').replace('\r\n','')=='a'):
-
+                        self.cambio1=True
+            if (datos.decode('cp1250').replace('\r\n','')=='o'):
+                        self.Rdatos=1
+                        x=int(0)
+            else:
+                    if(datos.decode('cp1250').replace('\r\n','')=='e'):
+                            self.Rdatos=0 
+                            self.cambio=True
+                    else:
+                            if(self.Rdatos==1):
+                                    try:
+                                        data=int(datos.decode('cp1250'))
+                                        if x<5:
+                                            self.sensores[x]=data
+                                        x=x+1
+                                    except:
+                                        print("raro")
             time.sleep(0.1)
             
                           
      def press(self,key):
          #print(key.encode('cp1250'))
-         self.ser_acm0.write(key.encode('cp1250'))#codifica y envia
+         self.ser.write(key.encode('cp1250'))#codifica y envia
        
 
 
@@ -85,7 +105,12 @@ class AppProtocol(WebSocketClientProtocol):
         print("WebSocket connection closed")
         
     def envioSerial(self):
-        self.sendMessage(json.dumps({'userFrom':'2','userTo': '1','type':'sensores','message':self.seri.sensores}).encode('utf8'))
+        if self.seri.cambio1==True:
+                self.seri.cambio1=False
+                self.sendMessage(json.dumps({'userFrom':'2','userTo': '1','type':'bola','message':'entro'}).encode('utf8'))        
+        if self.seri.cambio==True:
+                self.seri.cambio=False
+                self.sendMessage(json.dumps({'userFrom':'2','userTo': '1','type':'sensores','message':self.seri.sensores}).encode('utf8'))
         
         
         
