@@ -24,28 +24,36 @@ class SerialD():
           self.ser_acm0 = serial.Serial()
           self.ser_acm0.baudrate = 115200
           self.ser_acm0.port = '/dev/ttyACM0'
-          self.sensores=[0,0,0,0,0]
+          self.sensores=[0,0]
+          self.ser_acm1 = serial.Serial()
+          self.ser_acm1.baudrate = 115200
+          self.ser_acm1.port = '/dev/ttyUSB0'
           
      def start(self):
             try:
                 self.ser_acm0.open()
             except:
-                self.ser_acm0.port='/dev/ttyUSB0'
-                self.ser_acm0.open()
+                print("Error Abriendo acm0")
+                exit()
+            try:
+                self.ser_acm1.open()
+            except:
+                print("Error Abriendo acm1")
+                exit()
             self.hilo=threading.Thread(target=self.update, args=())
             self.hilo.start()
-          
      def end(self):
           self.ser_acm0.close()
-          
+          self.ser_acm1.close()
      def update(self):
-        while self.ser_acm0.isOpen():
+        while ((self.ser_acm0.isOpen())and(self.ser_acm1.isOpen())):
             self.ser_acm0.flush() #espera a  exista un dato
             datos=self.ser_acm0.readline()
-            if (datos.decode('cp1250').replace('\r\n','')=='a'):
-
+            self.sensores[0]=datos.decode('cp1250').replace('\r\n','')
+            self.ser_acm1.flush() #espera a  exista un dato
+            datos=self.ser_acm1.readline()
+            self.sensores[1]=datos.decode('cp1250').replace('\r\n','')
             time.sleep(0.1)
-            
                           
      def press(self,key):
          #print(key.encode('cp1250'))
