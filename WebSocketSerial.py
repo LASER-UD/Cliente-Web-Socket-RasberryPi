@@ -42,7 +42,7 @@ class SerialD():
      def end(self):
           self.ser_acm0.close()
      def update(self):
-        while ((self.ser_acm0.isOpen()):
+        while (self.ser_acm0.isOpen()):
             self.ser_acm0.flush() #espera a  exista un dato
             datos=self.ser_acm0.readline()
             self.sensores=datos.decode('cp1250').replace('\r\n','').split(',', 4)# separa los datos y lo pone en la variable sensores
