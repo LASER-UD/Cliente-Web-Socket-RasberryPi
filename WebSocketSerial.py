@@ -20,14 +20,14 @@ port = 10207  # Server Port
 class SerialD():
      cuenta=0
      def __init__(self):
-          self.datos=None;
+          self.datos=None
           self.ser_acm0 = serial.Serial()
           self.ser_acm0.baudrate = 115200
           self.ser_acm0.port = '/dev/ttyACM0'
-          self.sensores=[0,0]
-          self.ser_acm1 = serial.Serial()
-          self.ser_acm1.baudrate = 115200
-          self.ser_acm1.port = '/dev/ttyUSB0'
+          self.sensores=["","","",""]
+          #self.ser_acm1 = serial.Serial()
+          #self.ser_acm1.baudrate = 115200
+          #self.ser_acm1.port = '/dev/ttyUSB0'
           
      def start(self):
             try:
@@ -44,15 +44,16 @@ class SerialD():
             self.hilo.start()
      def end(self):
           self.ser_acm0.close()
-          self.ser_acm1.close()
+          #self.ser_acm1.close()
      def update(self):
-        while ((self.ser_acm0.isOpen())and(self.ser_acm1.isOpen())):
+        #while ((self.ser_acm0.isOpen())and(self.ser_acm1.isOpen())):
+        while ((self.ser_acm0.isOpen()):
             self.ser_acm0.flush() #espera a  exista un dato
             datos=self.ser_acm0.readline()
-            self.sensores[0]=datos.decode('cp1250').replace('\r\n','')
-            self.ser_acm1.flush() #espera a  exista un dato
-            datos=self.ser_acm1.readline()
-            self.sensores[1]=datos.decode('cp1250').replace('\r\n','')
+            self.sensores=datos.decode('cp1250').replace('\r\n','').split(',', 4)# separa los datos y lo pone en la variable sensores
+            #self.ser_acm1.flush() #espera a  exista un dato
+            #datos=self.ser_acm1.readline()
+            #self.sensores[1]=datos.decode('cp1250').replace('\r\n','')
             time.sleep(0.1)
                           
      def press(self,key):
