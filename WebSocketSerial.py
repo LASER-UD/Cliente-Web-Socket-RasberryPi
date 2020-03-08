@@ -25,9 +25,6 @@ class SerialD():
           self.ser_acm0.baudrate = 115200
           self.ser_acm0.port = '/dev/ttyACM0'
           self.sensores=["","","",""]
-          #self.ser_acm1 = serial.Serial()
-          #self.ser_acm1.baudrate = 115200
-          #self.ser_acm1.port = '/dev/ttyUSB0'
           
      def start(self):
             try:
@@ -44,20 +41,14 @@ class SerialD():
             self.hilo.start()
      def end(self):
           self.ser_acm0.close()
-          #self.ser_acm1.close()
      def update(self):
-        #while ((self.ser_acm0.isOpen())and(self.ser_acm1.isOpen())):
         while ((self.ser_acm0.isOpen()):
             self.ser_acm0.flush() #espera a  exista un dato
             datos=self.ser_acm0.readline()
             self.sensores=datos.decode('cp1250').replace('\r\n','').split(',', 4)# separa los datos y lo pone en la variable sensores
-            #self.ser_acm1.flush() #espera a  exista un dato
-            #datos=self.ser_acm1.readline()
-            #self.sensores[1]=datos.decode('cp1250').replace('\r\n','')
             time.sleep(0.1)
                           
      def press(self,key):
-         #print(key.encode('cp1250'))
          self.ser_acm0.write(key.encode('cp1250'))#codifica y envia
        
 
