@@ -32,11 +32,6 @@ class SerialD():
             except:
                 print("Error Abriendo acm0")
                 exit()
-            try:
-                self.ser_acm1.open()
-            except:
-                print("Error Abriendo acm1")
-                exit()
             self.hilo=threading.Thread(target=self.update, args=())
             self.hilo.start()
      def end(self):
