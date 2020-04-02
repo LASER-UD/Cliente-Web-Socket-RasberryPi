@@ -51,26 +51,22 @@ class SerialD():
 class AppProtocol(WebSocketClientProtocol):    
     def onOpen(self):
         self.seri=SerialD()
-        print("Abierto")
 
     def onConnect(self, response):
-        print("server conectado")
+        print("server is Connected")
 
     def onConnecting(self, transport_details):
-        print("Conectando")
         return None  # ask for defaults
 
     def onMessage(self, payload, isBinary):
         text_data_json = json.loads(payload.decode('utf8'))
-        if(text_data_json['type']=='MC'):
-                print("MC")
+        if(text_data_json['type']=='connect'):
                 self.seri.start()
                 self._loop = LoopingCall(self.envioSerial)
                 self._loop.start(0.1)
                
-        elif(text_data_json['type']=='MD'):
+        elif(text_data_json['type']=='disconnect'):
                 subprocess.call('/usr/bin/pm2 restart 0',shell=True)
-                print("MD")
         else:
             message = text_data_json['message']
             print(message)
@@ -80,7 +76,7 @@ class AppProtocol(WebSocketClientProtocol):
         print("WebSocket connection closed")
         
     def envioSerial(self):
-        self.sendMessage(json.dumps({'userFrom':'2','userTo': '1','type':'sensores','message':self.seri.sensores}).encode('utf8'))
+        self.sendMessage(json.dumps({'to': 'controller','type':'sensors','message':self.seri.sensores}).encode('utf8'))
         
         
         
