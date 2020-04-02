@@ -60,9 +60,9 @@ class VideoCamera(object):
 @implementer(interfaces.IPushProducer)
 class RandomByteStreamProducer:
     
-    def __init__(self, proto):
-        self.cuenta=0
-        self.proto = proto
+    def __init__(self, protocol):
+        self.count=0
+        self.protocol = protocol
         self.paused = False
         self.camera = VideoCamera()
 
@@ -73,11 +73,11 @@ class RandomByteStreamProducer:
     def resumeProducing(self):
         self.paused = False   
         while not self.paused:
-            if self.cuenta==3:
-                self.cuenta=0;
+            if self.count==3:
+                self.count=0
                 self.update()
             else:
-                self.cuenta=self.cuenta+1;
+                self.count=self.count+1;
             time.sleep(0.01)
      
     def stopProducing(self):
@@ -85,7 +85,7 @@ class RandomByteStreamProducer:
 
          
     def update(self):
-        self.proto.sendMessage(json.dumps({'userFrom':'2','userTo': '1','type':'imagen','message':self.camera.get_frame()}).encode('utf8'))
+        self.protocol.sendMessage(json.dumps({'to': 'controller','type':'image','message':self.camera.get_frame()}).encode('utf8'))
                 
     def __del__(self):
         print("EliminandoProdutor")
@@ -99,26 +99,23 @@ class AppProtocol(WebSocketClientProtocol):
     def onOpen(self):
         self.producer = RandomByteStreamProducer(self)
         self.registerProducer(self.producer, True)
-        print("Abierto")
+        print("Open Socket")
 
     def onConnect(self, response):
-        print("server conectado")
+        print("Server Connected")
 
     def onConnecting(self, transport_details):
-        print("Conectando")
+        print("Connection")
         return None  # ask for defaults
 
     def onMessage(self, payload, isBinary):
         text_data_json = json.loads(payload.decode('utf8'))
-        if(text_data_json['type']=='MC'):
-                print("MC")
+        if(text_data_json['type']=='connect'):
                 self.producer.camera.start()
                 self.producer.resumeProducing()
-        elif(text_data_json['type']=='MD'):
+        elif(text_data_json['type']=='disconnect'):
                 subprocess.call('/usr/bin/pm2 restart 2',shell=True)
                 self.producer.pauseProducing()
-                
-                print("MD")
         else:
             message = text_data_json['message']
             print(message)
@@ -126,10 +123,7 @@ class AppProtocol(WebSocketClientProtocol):
 
     def onClose(self, wasClean, code, reason):
         del self.producer    
-        print("WebSocket connection closed")
-        
-   
-        
+        print("WebSocket connection closed")   
         
         
 class AppFactory(WebSocketClientFactory, ReconnectingClientFactory):
@@ -151,7 +145,7 @@ if __name__ == '__main__':
     from twisted.python import log
     from twisted.internet import reactor
     log.startLogging(sys.stdout)
-    factory = AppFactory(u"ws://ritaportal.udistrital.edu.co:10207/jordan1")
+    factory = AppFactory(u"ws://ritaportal.udistrital.edu.co:10207/botVideo")
     reactor.connectTCP(server, port, factory)
     reactor.run()
 

@@ -103,7 +103,7 @@ if __name__ == '__main__':
     from twisted.python import log
     from twisted.internet import reactor
     log.startLogging(sys.stdout)
-    factory = AppFactory(u"ws://ritaportal.udistrital.edu.co:10207/jordan")
+    factory = AppFactory(u"ws://ritaportal.udistrital.edu.co:10207/botControl")
     reactor.connectTCP(server, port, factory)
     reactor.run()
 
