@@ -12,7 +12,6 @@ import threading
 import sys
 import time
 import serial
-import subprocess
 from twisted.internet.task import LoopingCall
 server = "ritaportal.udistrital.edu.co"  # Server IP Address or domain eg: tabvn.com
 port = 10207  # Server Port

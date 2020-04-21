@@ -1,4 +1,3 @@
-from ranstring import randomByteString
 from zope.interface import implementer
 from twisted.internet import reactor, interfaces
 
@@ -36,10 +35,7 @@ class RandomByteStreamProducer:
             self.started = True
 
         while not self.paused:
-            data = randomByteString(1024)
-            if self.proto.sendMessageFrameData(data) <= 0:
-                self.proto.beginMessageFrame(FRAME_SIZE)
-                print("new frame started!")
+            self.proto.sendMessageFrameData("Hola")
 
     def stopProducing(self):
         pass
@@ -69,7 +65,7 @@ class StreamingProducerHashClientProtocol(WebSocketClientProtocol):
 
 if __name__ == '__main__':
 
-    factory = WebSocketClientFactory(u"ws://127.0.0.1:9000")
+    factory = WebSocketClientFactory(u"ws://ritaportal.udistrital.edu.co:10207/?user=botControl")
     factory.protocol = StreamingProducerHashClientProtocol
     connectWS(factory)
-reactor.run()
+    reactor.run()
