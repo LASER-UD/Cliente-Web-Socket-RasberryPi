@@ -18,13 +18,6 @@ class SerialD():
         self._startUpdate = False
 
      def start(self):
-
-        try:
-            self._serial_acm0.open()
-        except:
-            print("[Error] could not open port acm0")
-            sio.disconnect()
-            exit()
         self._startUpdate = True
         self._loop.start()
 
@@ -32,18 +25,35 @@ class SerialD():
         self._startUpdate = False
 
      def update(self):
-        while ((self._startUpdate)&(self._ser_acm0.isOpen())):
-            self._serial_acm0.flush() #espera a  exista un dato
-            dataSerial=self._serial_acm0.readline()
-            self.sensors=dataSerial.decode('cp1250').replace('\r\n','').split(',', 4)
-            sio.emit('message',{'to': 'controller','type':'sensors','message':serial.sensors})
+        while (self._startUpdate):
+            print('sensores')
+            self.sensors = ["4","3","2","1"]
             time.sleep(0.9)
         print('Thread Serial Stopped')
 
      def sendSerial(self,key):
          self._serial_acm0.write(key.encode('cp1250'))#codifica y envia
 
+
+
+class SendWebsocket():
+    def __init__(self):
+        self._loop = threading.Thread(target=self.update, args=())
+        self._startUpdate = False
+    def startSend(self):
+        self._startUpdate = True
+        self._loop.start()
+    def stopSend(self):
+        self._startUpdate = False
+    def update(self):
+        while (self._startUpdate):
+            print('sendSocket')
+            sio.emit('message',{'to': 'controller','type':'sensors','message':serial.sensors})
+            time.sleep(0.9)
+        print('Thread Send Stopped')
+
 serial=SerialD()
+sendWebsocket=SendWebsocket()
 
 @sio.event
 def connect():
@@ -53,6 +63,7 @@ def connect():
 def on_message(data):
     print('User controller Connect')
     serial.start()
+    sendWebsocket.startSend()
 
 @sio.on('message')
 def message(data):
@@ -63,6 +74,7 @@ def message(data):
         serial.sendSerial(str(message))  
     else:
         serial.stop()
+        sendWebsocket.stopSend()
         print('User controller Disconnect')
 
 @sio.event()
