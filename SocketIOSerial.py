@@ -32,7 +32,7 @@ class SerialD():
         self._startUpdate = False
 
      def update(self):
-        while ((self._startUpdate)&(self._ser_acm0.isOpen())):
+        while ((self._startUpdate)&(self._serial_acm0.isOpen())):
             self._serial_acm0.flush() #espera a  exista un dato
             dataSerial=self._serial_acm0.readline()
             self.sensors=dataSerial.decode('cp1250').replace('\r\n','').split(',', 4)
@@ -71,6 +71,6 @@ def disconnect():
     serial.stop()
 
 if __name__ == '__main__':
-    sio.connect('ws://192.168.0.4:8000?user=botControl')
-    #sio.connect('ws://ritaportal.udistrital.edu.co:10207/')
+    #sio.connect('ws://192.168.0.4:8000?user=botControl')
+    sio.connect('ws://ritaportal.udistrital.edu.co:10207/?user=botControl')
     sio.wait()
