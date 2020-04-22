@@ -86,6 +86,6 @@ def disconnect():
     sendWebsocket.stopSend()
 
 if __name__ == '__main__':
-    sio.connect('ws://192.168.0.4:8000?user=botVideo')
-    #sio.connect('ws://ritaportal.udistrital.edu.co:10207/?user=botVideo')
+    #sio.connect('ws://192.168.0.4:8000?user=botVideo')
+    sio.connect('ws://ritaportal.udistrital.edu.co:10207/?user=botVideo')
     sio.wait()
